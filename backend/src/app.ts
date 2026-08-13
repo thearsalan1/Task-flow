@@ -16,4 +16,8 @@ app.use(express.json());
 app.use("/boards", boardRoutes);
 app.use("/tasks", taskRoutes);
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 export default app;
