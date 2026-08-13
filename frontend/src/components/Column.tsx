@@ -11,6 +11,7 @@ import { createTask } from "../api/task";
 interface Props {
   column: ColumnType;
   priorityFilter: Priority | "ALL";
+  searchQuery: string;
   allColumns: ColumnType[];
   onTaskChanged: () => void;
 }
@@ -19,16 +20,18 @@ export default function ColumnView({
   column,
   priorityFilter,
   allColumns,
+  searchQuery,
   onTaskChanged,
 }: Props) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
-  const visibleTasks =
-    priorityFilter === "ALL"
-      ? column.tasks
-      : column.tasks.filter((t) => t.priority === priorityFilter);
+  const visibleTasks = column.tasks
+    .filter((t) => priorityFilter === "ALL" || t.priority === priorityFilter)
+    .filter((t) =>
+      t.title.toLowerCase().includes(searchQuery.toLowerCase().trim()),
+    );
 
   const handleCreate = async (data: {
     title: string;

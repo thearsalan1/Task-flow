@@ -11,6 +11,7 @@ export default function Board() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [priorityFilter, setPriorityFilter] = useState<Priority | "ALL">("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const loadBoard = async () => {
     setLoading(true);
@@ -55,19 +56,27 @@ export default function Board() {
 
   return (
     <div className="flex flex-col min-h-screen p-6">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-4xl font-bold text-blue-950">{board.name}</h1>
-        <PriorityFilter value={priorityFilter} onChange={setPriorityFilter} />
+        <div>
+          <input
+            type="text"
+            placeholder="Search tasks..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border border-gray-300 px-3 py-1.5 text-sm mr-2 rounded-2xl"
+          />
+          <PriorityFilter value={priorityFilter} onChange={setPriorityFilter} />
+        </div>
       </div>
 
-      {/* Grid section */}
       <div className="flex justify-center p-10">
         <div className="grid grid-cols-3 gap-6 w-[80%]">
           {board.columns.map((col) => (
             <ColumnView
               key={col.id}
               column={col}
+              searchQuery={searchQuery}
               priorityFilter={priorityFilter}
               allColumns={board.columns}
               onTaskChanged={loadBoard}
