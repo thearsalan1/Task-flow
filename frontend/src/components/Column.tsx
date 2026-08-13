@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   type Column as ColumnType,
-  type Task,
   type Priority,
 } from "../types/types";
 import TaskCard from "./TaskCard";
