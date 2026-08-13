@@ -205,6 +205,7 @@ Both are exercised directly against the database (bypassing the API layer) in `b
 
 All error responses follow `{ success: false, message: string }`. Not-found errors return `404` (mapped from Prisma's `P2025` error code); validation failures return `400`; unexpected errors return `500` with no leaked stack traces.
 
+> The backend runs on Render's free tier and is kept warm with an UptimeRobot ping every 5 minutes to avoid cold-start delays.
 ---
 
 ## Frontend features
