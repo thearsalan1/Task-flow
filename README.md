@@ -38,55 +38,24 @@ taskflow/
 
 ---
 
-## Setup (from a fresh clone)
+## Getting Started
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/thearsalan1/Task-flow.git
+cd Task-flow
+```
+
+### 2. Set up environment variables
 
 You'll need a PostgreSQL connection string. The easiest option is a free [Neon](https://neon.tech) project — no local Postgres install needed.
 
-Two ways to run this: **Docker Compose** (fastest) or **manually** (npm install in each folder). Both need the same `.env` files filled in first.
-
-### Option A — Docker Compose
-
-1. Fill in `backend/.env` and `frontend/.env` (see the variable tables below — copy from the `.env.example` files in each folder).
-2. From the repo root:
-
-   ```bash
-   docker-compose up --build
-   ```
-
-3. In a separate terminal, run migrations and seed the database (first run only):
-
-   ```bash
-   docker-compose exec backend npx prisma migrate deploy
-   docker-compose exec backend npx prisma db seed
-   ```
-
-   The seed command prints the created board's id — copy it into `frontend/.env` as `VITE_BOARD_ID`, then restart the frontend container:
-
-   ```bash
-   docker-compose restart frontend
-   ```
-
-4. Open the app:
-   - Backend: `http://localhost:5000`
-   - Frontend: `http://localhost:5173`
-
-### Option B — Manual (without Docker)
-
-### 1. Backend
+Copy the example env files, then fill them in:
 
 ```bash
-cd backend
-npm install
-cp .env.example .env       # fill in DATABASE_URL (see below)
-npx prisma migrate deploy  # applies existing migrations
-npx prisma db seed         # seeds a demo board with sample tasks
-npm run dev                # starts the API on http://localhost:5000
-```
-
-The seed script prints the created board's id to the terminal — copy it, you'll need it for the frontend `.env`. If you missed it, run this in the Neon SQL editor (or any Postgres client):
-
-```sql
-SELECT id, name FROM "Board";
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
 ```
 
 **`backend/.env`**
@@ -96,55 +65,85 @@ FRONTEND_URL=http://localhost:5173
 PORT=5000
 ```
 
-Run the backend test suite:
-
-```bash
-npm run test
+**`frontend/.env`**
+```
+VITE_API_URL=http://localhost:5000
+VITE_BOARD_ID=<the board id printed by the seed script — see below>
 ```
 
-### 2. Frontend
+`VITE_BOARD_ID` can only be filled in *after* you seed the database in step 3, so leave it blank for now.
 
-In a second terminal:
+Now pick **one** of the two options below to run the project.
+
+---
+
+### Option A — Without Docker (manual)
+
+**Backend** (first terminal):
+
+```bash
+cd backend
+npm install
+npx prisma migrate deploy  # applies existing migrations
+npx prisma db seed         # seeds a demo board with sample tasks — copy the printed board id into frontend/.env as VITE_BOARD_ID
+npm run dev                # starts the API on http://localhost:5000
+```
+
+If you missed the printed board id, get it directly from the database:
+
+```sql
+SELECT id, name FROM "Board";
+```
+
+Run the backend test suite any time with `npm run test`.
+
+**Frontend** (second terminal):
 
 ```bash
 cd frontend
 npm install
-cp .env.example .env       # fill in VITE_BOARD_ID with the id from the seed step above
 npm run dev                # starts the app on http://localhost:5173
-```
-
-**`frontend/.env`**
-```
-VITE_API_URL=http://localhost:5000
-VITE_BOARD_ID=<the board id printed by the seed script>
 ```
 
 Open `http://localhost:5173` — you should see the seeded board with three columns (To Do / In Progress / Done) and sample tasks.
 
 ---
 
-## Running with Docker — details
+### Option B — With Docker
 
-The repo includes a `Dockerfile` in both `backend/` and `frontend/`, plus a root `docker-compose.yml`. There's no database container — the app connects to a hosted Neon Postgres instance, so `DATABASE_URL` in `backend/.env` must point to a real, reachable Postgres connection string (Neon free tier works fine).
+Requires Docker and Docker Compose. There's no database container — both services connect to your hosted Neon Postgres instance via `DATABASE_URL`, so `backend/.env` must already point to a real, reachable connection string.
 
-```
-taskflow/
-├── docker-compose.yml
-├── backend/Dockerfile
-└── frontend/Dockerfile
-```
-
-Both containers mount the local source as a volume, so code changes on the host are picked up without rebuilding the image — useful if you want to keep developing inside Docker.
-
-Useful commands:
+From the repo root:
 
 ```bash
-docker-compose up --build       # build images and start both containers
-docker-compose exec backend npx prisma studio   # inspect the database (optional)
-docker-compose down             # stop and remove containers
+docker-compose up --build
 ```
 
-If you change `frontend/.env` (e.g. after re-seeding), restart just that container: `docker-compose restart frontend`.
+In a separate terminal, run migrations and seed the database (first run only):
+
+```bash
+docker-compose exec backend npx prisma migrate deploy
+docker-compose exec backend npx prisma db seed
+```
+
+Copy the board id printed by the seed command into `frontend/.env` as `VITE_BOARD_ID`, then restart the frontend container so it picks up the new value:
+
+```bash
+docker-compose restart frontend
+```
+
+Open the app:
+- Backend: `http://localhost:5000`
+- Frontend: `http://localhost:5173`
+
+Both containers mount the local source as a volume, so code changes on the host are picked up without rebuilding the image.
+
+Other useful commands:
+
+```bash
+docker-compose exec backend npx prisma studio   # inspect the database (optional)
+docker-compose down                             # stop and remove containers
+```
 
 ---
 
