@@ -17,6 +17,7 @@ app.use("/boards", boardRoutes);
 app.use("/tasks", taskRoutes);
 
 app.get("/health", (req, res) => {
+  console.log("Health check ping received");
   res.status(200).json({ status: "ok" });
 });
 
